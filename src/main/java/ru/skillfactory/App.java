@@ -1,6 +1,7 @@
 package ru.skillfactory;
 
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
@@ -10,6 +11,12 @@ import ru.skillfactory.entity.Event;
 import ru.skillfactory.entity.Participant;
 import ru.skillfactory.entity.Place;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -34,64 +41,23 @@ public class App {
             StandardServiceRegistryBuilder.destroy(registry);
         }
 
+
         Session session = sessionFactory.openSession();
         session.beginTransaction();
 
         session.save(new Event("Our very first event!", new Date()));
         session.getTransaction().commit();
-        session.close();
+        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+        CriteriaQuery<Event> query = criteriaBuilder.createQuery(Event.class);
+        Root<Event> root = query.from(Event.class);
+        query.select(root);
 
-        session = sessionFactory.openSession();
-        session.beginTransaction();
-        List result = session.createQuery("from Event").list();
-        for (Event event : (List<Event>) result) {
-            System.out.println("Event (" + event.getDate() + ") : " + event.getTitle());
-        }
-        session.getTransaction().commit();
-        session.close();
-
-        session = sessionFactory.openSession();
-        session.beginTransaction();
-        Event event = session.load(Event.class, 1L);
-        List<Participant> participants = getParticipants();
-        for (Participant participant : participants) {
-            session.save(participant);
-        }
-        event.setParticipantList(new ArrayList<>());
-        event.getParticipantList().addAll(participants);
-        session.save(event);
-        session.getTransaction().commit();
-
-
-        result = session.createQuery("from Event").list();
-        for (Event iterableEvent : (List<Event>) result) {
-            System.out.println("Event (" + iterableEvent.getDate() + ") : " + iterableEvent.getTitle() + " with participants = " + iterableEvent.getParticipantList().size());
-        }
-        session.close();
-
-        session = sessionFactory.openSession();
-        session.beginTransaction();
-        Place place = new Place("Moscow", "Lenina", "2");
-        session.save(place);
-        event = session.load(Event.class, 1L);
-        event.setPlace(place);
-        session.save(event);
-        session.getTransaction().commit();
-
-        result = session.createQuery("from Event").list();
-        for (Event iterableEvent : (List<Event>) result) {
-            System.out.println("Event (" + iterableEvent.getDate() + ") :" +
-                    " " + iterableEvent.getTitle()
-                    + " with participants = " + iterableEvent.getParticipantList().size()
-                    + " at the " + event.getPlace().getCity());
-        }
+        Query<Event> quers = session.createQuery(query);
+        List<Event> events = quers.getResultList();
+        System.out.println(events.get(0).getTitle());
 
 
 
-        session.close();
-        if (sessionFactory != null) {
-            sessionFactory.close();
-        }
     }
 
     public static List<Participant> getParticipants() {
