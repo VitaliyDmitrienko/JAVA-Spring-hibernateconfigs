@@ -14,6 +14,7 @@ public class Event {
     private String title;
     private Date date;
     private List<Participant> participantList;
+    private Place place;
 
     public Event() {}
 
@@ -58,5 +59,14 @@ public class Event {
 
     public void setParticipantList(List<Participant> participantList) {
         this.participantList = participantList;
+    }
+
+    @OneToOne(targetEntity = Place.class)
+    public Place getPlace() {
+        return place;
+    }
+
+    public void setPlace(Place place) {
+        this.place = place;
     }
 }

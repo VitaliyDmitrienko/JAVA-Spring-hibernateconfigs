@@ -8,6 +8,7 @@ import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import ru.skillfactory.entity.Event;
 import ru.skillfactory.entity.Participant;
+import ru.skillfactory.entity.Place;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,6 +26,7 @@ public class App {
             sessionFactory = new MetadataSources(registry)
                     .addAnnotatedClass(Event.class)
                     .addAnnotatedClass(Participant.class)
+                    .addAnnotatedClass(Place.class)
                     .buildMetadata().buildSessionFactory();
         } catch (Exception e) {
             // The registry would be destroyed by the SessionFactory, but we had trouble building the SessionFactory
@@ -65,8 +67,28 @@ public class App {
         for (Event iterableEvent : (List<Event>) result) {
             System.out.println("Event (" + iterableEvent.getDate() + ") : " + iterableEvent.getTitle() + " with participants = " + iterableEvent.getParticipantList().size());
         }
+        session.close();
+
+        session = sessionFactory.openSession();
+        session.beginTransaction();
+        Place place = new Place("Moscow", "Lenina", "2");
+        session.save(place);
+        event = session.load(Event.class, 1L);
+        event.setPlace(place);
+        session.save(event);
+        session.getTransaction().commit();
+
+        result = session.createQuery("from Event").list();
+        for (Event iterableEvent : (List<Event>) result) {
+            System.out.println("Event (" + iterableEvent.getDate() + ") :" +
+                    " " + iterableEvent.getTitle()
+                    + " with participants = " + iterableEvent.getParticipantList().size()
+                    + " at the " + event.getPlace().getCity());
+        }
 
 
+
+        session.close();
         if (sessionFactory != null) {
             sessionFactory.close();
         }
