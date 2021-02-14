@@ -4,6 +4,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Table(name = "EVENTS")
 @Entity
@@ -12,6 +13,7 @@ public class Event {
     private Long id;
     private String title;
     private Date date;
+    private List<Participant> participantList;
 
     public Event() {}
 
@@ -47,5 +49,14 @@ public class Event {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    @OneToMany(targetEntity = Participant.class)
+    public List<Participant> getParticipantList() {
+        return participantList;
+    }
+
+    public void setParticipantList(List<Participant> participantList) {
+        this.participantList = participantList;
     }
 }

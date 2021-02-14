@@ -7,7 +7,10 @@ import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import ru.skillfactory.entity.Event;
+import ru.skillfactory.entity.Participant;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -19,7 +22,10 @@ public class App {
                 .configure()
                 .build();
         try {
-            sessionFactory = new MetadataSources(registry).addAnnotatedClass(Event.class).buildMetadata().buildSessionFactory();
+            sessionFactory = new MetadataSources(registry)
+                    .addAnnotatedClass(Event.class)
+                    .addAnnotatedClass(Participant.class)
+                    .buildMetadata().buildSessionFactory();
         } catch (Exception e) {
             // The registry would be destroyed by the SessionFactory, but we had trouble building the SessionFactory
             // so destroy it manually.
@@ -42,8 +48,36 @@ public class App {
         session.getTransaction().commit();
         session.close();
 
+        session = sessionFactory.openSession();
+        session.beginTransaction();
+        Event event = session.load(Event.class, 1L);
+        List<Participant> participants = getParticipants();
+        for (Participant participant : participants) {
+            session.save(participant);
+        }
+        event.setParticipantList(new ArrayList<>());
+        event.getParticipantList().addAll(participants);
+        session.save(event);
+        session.getTransaction().commit();
+
+
+        result = session.createQuery("from Event").list();
+        for (Event iterableEvent : (List<Event>) result) {
+            System.out.println("Event (" + iterableEvent.getDate() + ") : " + iterableEvent.getTitle() + " with participants = " + iterableEvent.getParticipantList().size());
+        }
+
+
         if (sessionFactory != null) {
             sessionFactory.close();
         }
+    }
+
+    public static List<Participant> getParticipants() {
+        return Arrays.asList(
+                new Participant("Ivan", "Ivanov"),
+                new Participant("Ivan", "Fedorod"),
+                new Participant("George", "Bush"),
+                new Participant("Probably", "Robot")
+        );
     }
 }
