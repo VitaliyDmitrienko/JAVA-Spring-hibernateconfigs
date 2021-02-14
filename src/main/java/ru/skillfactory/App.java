@@ -19,7 +19,7 @@ public class App {
                 .configure()
                 .build();
         try {
-            sessionFactory = new MetadataSources(registry).buildMetadata().buildSessionFactory();
+            sessionFactory = new MetadataSources(registry).addAnnotatedClass(Event.class).buildMetadata().buildSessionFactory();
         } catch (Exception e) {
             // The registry would be destroyed by the SessionFactory, but we had trouble building the SessionFactory
             // so destroy it manually.

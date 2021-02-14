@@ -26,8 +26,6 @@
         <!-- Drop and re-create the database schema on startup -->
         <property name="hbm2ddl.auto">create</property>
 
-        <mapping resource="ru/skillfactory/entity/Event.hbm.xml"/>
-
     </session-factory>
 
 </hibernate-configuration>

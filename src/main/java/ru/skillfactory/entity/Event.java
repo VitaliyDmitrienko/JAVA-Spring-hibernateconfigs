@@ -1,7 +1,12 @@
 package ru.skillfactory.entity;
 
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.*;
 import java.util.Date;
 
+@Table(name = "EVENTS")
+@Entity
 public class Event {
 
     private Long id;
@@ -15,6 +20,9 @@ public class Event {
         this.date = date;
     }
 
+    @Id
+    @GeneratedValue(generator = "increment")
+    @GenericGenerator(name = "increment", strategy = "increment")
     public Long getId() {
         return id;
     }
@@ -23,6 +31,7 @@ public class Event {
         this.id = id;
     }
 
+    @Column(name = "TITLE")
     public String getTitle() {
         return title;
     }
@@ -31,6 +40,7 @@ public class Event {
         this.title = title;
     }
 
+    @Column(name = "EVENT_DATE")
     public Date getDate() {
         return date;
     }
