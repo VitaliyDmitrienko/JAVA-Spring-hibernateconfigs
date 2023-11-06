@@ -56,8 +56,6 @@ public class App {
         List<Event> events = quers.getResultList();
         System.out.println(events.get(0).getTitle());
 
-
-
     }
 
     public static List<Participant> getParticipants() {
